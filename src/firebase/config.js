@@ -5,12 +5,12 @@ import { getFirestore } from 'firebase/firestore';
 
 // Tu configuración de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyAfjusN1GXPwcl0mXw2RqVCl-tn4VwsgZM",
-  authDomain: "clases-b4bc0.firebaseapp.com",
-  projectId: "clases-b4bc0",
-  storageBucket: "clases-b4bc0.firebasestorage.app",
-  messagingSenderId: "434203839015",
-  appId: "1:434203839015:web:f6d9ea80b5ba2dfd4c1c02"
+  apiKey: "AIzaSyAFIWKVjbQwntUIiTpGUUhU9RTr4ShPFyk",
+  authDomain: "clases-adultos.firebaseapp.com",
+  projectId: "clases-adultos",
+  storageBucket: "clases-adultos.firebasestorage.app",
+  messagingSenderId: "698596900830",
+  appId: "1:698596900830:web:73708a0d51766478d3674f"
 };
 
 // Inicializar Firebase
