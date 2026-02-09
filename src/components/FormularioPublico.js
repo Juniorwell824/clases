@@ -107,16 +107,6 @@ const FormularioPublico = () => {
             </div>
           </Box>
           
-          {/* Botón para ir al login */}
-          <Button
-            component={RouterLink}
-            to="/login"
-            variant="contained"
-            className="login-button"
-            startIcon={<LockOutlinedIcon />}
-          >
-            Acceso al Sistema
-          </Button>
         </Paper>
 
         <Box className="form-content-container">
