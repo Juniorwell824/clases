@@ -1,0 +1,54 @@
+/* src/components/dashboard/UserManagement.css */
+.user-management-container {
+  padding: 24px;
+}
+
+.user-table {
+  margin-top: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  font-weight: 600;
+}
+
+.edit-dialog {
+  border-radius: 12px;
+}
+
+.permissions-grid {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.permission-checkbox {
+  margin: 0;
+}
+
+.permission-label {
+  font-size: 0.875rem;
+}
+
+.user-info-panel {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .user-management-container {
+    padding: 16px;
+  }
+  
+  .permissions-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
