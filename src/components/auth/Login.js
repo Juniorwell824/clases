@@ -15,7 +15,7 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../../firebase/config';
-import { query, collection, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 const Login = () => {
@@ -31,18 +31,58 @@ const Login = () => {
     setError('');
     
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // PASO 1: Autenticacion con Firebase Auth
+      console.log('[v0] Intentando login con email:', email);
+      let userCredential;
+      try {
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      } catch (authError) {
+        // Error de autenticacion - mostrar mensaje especifico
+        console.error('[v0] Error de Firebase Auth:', authError.code, authError.message);
+        
+        switch (authError.code) {
+          case 'auth/invalid-credential':
+          case 'auth/wrong-password':
+          case 'auth/user-not-found':
+            setError('Credenciales incorrectas. Verifique su correo y contraseña.');
+            break;
+          case 'auth/too-many-requests':
+            setError('Demasiados intentos fallidos. Intente más tarde.');
+            break;
+          case 'auth/user-disabled':
+            setError('Esta cuenta ha sido deshabilitada. Contacte al administrador.');
+            break;
+          case 'auth/network-request-failed':
+            setError('Error de conexión. Verifique su internet e intente nuevamente.');
+            break;
+          default:
+            setError(`Error de autenticación (${authError.code}): ${authError.message}`);
+        }
+        return; // Salir, no continuar
+      }
+
+      console.log('[v0] Auth exitoso para UID:', userCredential.user.uid);
       
-      const usuariosSnapshot = await getDocs(
-        query(collection(db, 'usuarios'), where('email', '==', email))
-      );
-      
+      // PASO 2: Intentar leer el rol del usuario desde Firestore
+      // Si esto falla, no es un error fatal - el usuario YA esta autenticado
       let userRole = 'socio';
-      if (!usuariosSnapshot.empty) {
-        const userData = usuariosSnapshot.docs[0].data();
-        userRole = userData.rol || 'socio';
+      try {
+        const userDocRef = doc(db, 'usuarios', userCredential.user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          userRole = userData.rol || 'socio';
+          console.log('[v0] Rol del usuario:', userRole);
+        } else {
+          console.log('[v0] Documento de usuario no encontrado en Firestore, usando rol default: socio');
+        }
+      } catch (firestoreError) {
+        console.error('[v0] Error leyendo Firestore (no fatal, auth ya exitoso):', firestoreError.code, firestoreError.message);
+        // No hacer nada - el usuario ya esta autenticado, usamos rol default
       }
       
+      // PASO 3: Navegar al dashboard correcto
       if (userRole === 'admin') {
         navigate('/admin/dashboard');
       } else {
@@ -50,18 +90,9 @@ const Login = () => {
       }
       
     } catch (error) {
-      console.error('Error en login:', error);
-      if (error.code === 'auth/invalid-credential') {
-        setError('Credenciales incorrectas. Verifique su correo y contraseña.');
-      } else if (error.code === 'auth/user-not-found') {
-        setError('Usuario no encontrado. Verifique su correo electrónico.');
-      } else if (error.code === 'auth/wrong-password') {
-        setError('Contraseña incorrecta. Intente nuevamente.');
-      } else if (error.code === 'auth/too-many-requests') {
-        setError('Demasiados intentos fallidos. Intente más tarde.');
-      } else {
-        setError('Error al iniciar sesión. Intente nuevamente.');
-      }
+      // Error inesperado general
+      console.error('[v0] Error inesperado en login:', error);
+      setError(`Error inesperado: ${error.message || 'Intente nuevamente'}`);
     } finally {
       setLoading(false);
     }
